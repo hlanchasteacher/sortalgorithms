@@ -3,1185 +3,1318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Archive of Mysteries</title>
+    <title>The Sorting Protocol — Digital Vault Simulation v2.4</title>
     <style>
         :root {
-            --bg-deep: #070a11;
-            --bg-surface: #0f121c;
-            --bg-elevated: #161a26;
-            --bg-block: #1a1e2c;
-            --gold: #bfa06b;
-            --gold-bright: #d9bc7e;
-            --gold-glow: #e8d09f;
-            --gold-muted: #7a6847;
-            --crimson: #c0392b;
-            --crimson-bright: #e74c3c;
-            --emerald: #3d8b6e;
-            --emerald-bright: #5ab896;
-            --text-primary: #d8d3c9;
-            --text-secondary: #9d978a;
-            --text-dim: #6b655a;
-            --border-subtle: #1e2232;
-            --border-active: #3a3540;
-            --border-gold: #5c4d32;
-            --font-display: 'Georgia', 'Times New Roman', 'Palatino Linotype', serif;
-            --font-ui: 'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif;
-            --shadow-card: 0 8px 40px rgba(0, 0, 0, 0.55);
-            --shadow-gold: 0 0 30px rgba(191, 160, 107, 0.2);
-            --shadow-crimson: 0 0 24px rgba(231, 76, 60, 0.3);
-            --shadow-emerald: 0 0 20px rgba(61, 139, 110, 0.25);
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 14px;
+            --bg-deep: #0a0c0f;
+            --bg-panel: #11161c;
+            --bg-card: #161b22;
+            --text-primary: #b0c5d0;
+            --text-bright: #d8e8f0;
+            --accent-green: #00e05a;
+            --accent-amber: #f0a030;
+            --accent-red: #e04040;
+            --accent-cyan: #20c8e0;
+            --accent-purple: #9070e0;
+            --border-subtle: #1e2a35;
+            --border-active: #304455;
+            --glow-green: 0 0 12px rgba(0, 224, 90, 0.35);
+            --glow-amber: 0 0 14px rgba(240, 160, 48, 0.5);
+            --glow-red: 0 0 10px rgba(224, 64, 64, 0.45);
+            --font-mono: 'Courier New', 'Consolas', 'Monaco', 'Liberation Mono', monospace;
+            --font-sans: 'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif;
             --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-smooth: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         body {
             background: var(--bg-deep);
-            background-image:
-                radial-gradient(ellipse at 45% 25%, rgba(191, 160, 107, 0.035) 0%, transparent 65%),
-                radial-gradient(ellipse at 75% 60%, rgba(191, 160, 107, 0.025) 0%, transparent 55%),
-                radial-gradient(ellipse at 20% 70%, rgba(90, 184, 150, 0.02) 0%, transparent 50%);
             color: var(--text-primary);
-            font-family: var(--font-ui);
+            font-family: var(--font-sans);
             min-height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
-            padding: 20px;
-            letter-spacing: 0.015em;
-            line-height: 1.55;
-            -webkit-font-smoothing: antialiased;
+            align-items: flex-start;
+            padding: 1.5rem;
+            background-image:
+                radial-gradient(ellipse at 50% 15%, rgba(0, 180, 80, 0.04) 0%, transparent 65%),
+                radial-gradient(ellipse at 50% 85%, rgba(20, 140, 200, 0.03) 0%, transparent 60%);
+            background-attachment: fixed;
         }
 
-        #vault-container {
-            width: 100%;
-            max-width: 880px;
-            position: relative;
-        }
-
-        .panel {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 38px 34px;
-            box-shadow: var(--shadow-card);
-            position: relative;
-            overflow: hidden;
-            transition: var(--transition-smooth);
-        }
-        .panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 10%;
-            right: 10%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--gold-muted), var(--gold), var(--gold-muted), transparent);
-            opacity: 0.55;
-        }
-        .panel.vault-complete {
-            border-color: #2a4a3a;
-            box-shadow: var(--shadow-card), var(--shadow-emerald);
-        }
-
-        .panel-title {
-            font-family: var(--font-display);
-            font-size: 1.75rem;
-            color: var(--gold-bright);
-            text-align: center;
-            margin-bottom: 4px;
-            letter-spacing: 0.05em;
-            text-shadow: 0 0 40px rgba(191, 160, 107, 0.35);
-        }
-        .panel-subtitle {
-            font-family: var(--font-display);
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            text-align: center;
-            margin-bottom: 26px;
-            letter-spacing: 0.07em;
-            font-style: italic;
-        }
-        .divider-ornament {
-            width: 70px;
-            height: 1px;
-            background: var(--border-gold);
-            margin: 0 auto 18px;
+        .terminal-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            background: repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.015) 2px,
+                    rgba(0, 0, 0, 0.015) 4px);
             opacity: 0.5;
-            position: relative;
-        }
-        .divider-ornament::after {
-            content: '◆';
-            position: absolute;
-            top: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.45rem;
-            color: var(--gold-muted);
-            background: var(--bg-surface);
-            padding: 0 6px;
         }
 
-        .badge-room {
-            display: inline-block;
-            padding: 5px 16px;
-            border: 1px solid var(--border-gold);
-            border-radius: 20px;
-            font-family: var(--font-display);
-            font-size: 0.7rem;
-            color: var(--gold);
-            letter-spacing: 0.08em;
-            margin-bottom: 10px;
-            background: rgba(191, 160, 107, 0.05);
-            text-transform: uppercase;
-        }
-        .badge-room.fulfilled {
-            border-color: var(--emerald);
-            color: var(--emerald-bright);
-            background: rgba(61, 139, 110, 0.06);
-        }
-
-        .form-field {
-            margin-bottom: 18px;
-        }
-        .form-field label {
-            display: block;
-            font-family: var(--font-display);
-            color: var(--gold-bright);
-            margin-bottom: 7px;
-            font-size: 0.9rem;
-            letter-spacing: 0.04em;
-        }
-        .form-field input,
-        .form-field textarea {
+        .main-container {
             width: 100%;
-            padding: 12px 15px;
-            background: var(--bg-elevated);
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* HEADER */
+        .header {
+            background: var(--bg-panel);
             border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-sm);
-            color: var(--text-primary);
-            font-family: var(--font-ui);
-            font-size: 0.95rem;
-            transition: var(--transition-fast);
-            resize: vertical;
-            letter-spacing: 0.02em;
-        }
-        .form-field input:focus,
-        .form-field textarea:focus {
-            outline: none;
-            border-color: var(--gold);
-            box-shadow: 0 0 14px rgba(191, 160, 107, 0.18);
-        }
-        .form-field textarea {
-            min-height: 110px;
-            line-height: 1.6;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 11px 26px;
-            font-family: var(--font-display);
-            font-size: 0.9rem;
-            letter-spacing: 0.06em;
-            cursor: pointer;
-            border: 1px solid var(--border-gold);
-            border-radius: var(--radius-sm);
-            background: transparent;
-            color: var(--gold);
-            transition: var(--transition-fast);
-            text-transform: uppercase;
-            position: relative;
-            user-select: none;
-            white-space: nowrap;
-        }
-        .btn:hover:not(:disabled) {
-            background: rgba(191, 160, 107, 0.1);
-            border-color: var(--gold-bright);
-            box-shadow: var(--shadow-gold);
-            color: var(--gold-glow);
-        }
-        .btn:active:not(:disabled) {
-            transform: scale(0.96);
-        }
-        .btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            border-color: var(--border-subtle);
-            color: var(--text-dim);
-        }
-        .btn-accent {
-            background: rgba(191, 160, 107, 0.1);
-            border-color: var(--gold);
-            color: var(--gold-glow);
-            font-weight: bold;
-        }
-        .btn-accent:hover:not(:disabled) {
-            background: rgba(191, 160, 107, 0.2);
-            box-shadow: 0 0 28px rgba(191, 160, 107, 0.3);
-        }
-        .btn-danger {
-            border-color: var(--crimson);
-            color: var(--crimson-bright);
-            background: rgba(192, 57, 43, 0.05);
-        }
-        .btn-danger:hover:not(:disabled) {
-            background: rgba(192, 57, 43, 0.15);
-            box-shadow: var(--shadow-crimson);
-        }
-        .btn-compact {
-            padding: 7px 16px;
-            font-size: 0.78rem;
-            letter-spacing: 0.05em;
-        }
-
-        .blocks-row {
+            border-radius: 10px;
+            padding: 1.25rem 1.6rem 1rem;
             display: flex;
-            gap: 10px;
-            justify-content: center;
+            flex-direction: column;
+            gap: 0.85rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+        }
+        .header-top {
+            display: flex;
             align-items: center;
+            justify-content: space-between;
             flex-wrap: wrap;
-            padding: 18px 8px;
-            min-height: 85px;
+            gap: 0.75rem;
         }
-        .blk {
-            width: 54px;
-            height: 54px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--font-display);
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: var(--radius-sm);
-            background: var(--bg-block);
-            border: 2px solid var(--border-subtle);
-            color: var(--text-primary);
-            transition: all 0.22s ease;
-            user-select: none;
-            cursor: default;
-            position: relative;
-            flex-shrink: 0;
+        .header-title {
+            font-family: var(--font-mono);
+            font-size: 1.55rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: var(--accent-green);
+            text-shadow: var(--glow-green);
+            text-transform: uppercase;
         }
-        .blk.scanning {
-            border-color: var(--gold);
-            box-shadow: 0 0 18px rgba(191, 160, 107, 0.45), inset 0 0 10px rgba(191, 160, 107, 0.08);
-            background: #1d2130;
-            animation: pulse-gold 1.1s ease-in-out infinite;
-            z-index: 3;
-        }
-        @keyframes pulse-gold {
-            0%,
-            100% {
-                box-shadow: 0 0 18px rgba(191, 160, 107, 0.45), inset 0 0 10px rgba(191, 160, 107, 0.08);
-            }
-            50% {
-                box-shadow: 0 0 30px rgba(232, 208, 159, 0.7), inset 0 0 16px rgba(191, 160, 107, 0.16);
-            }
-        }
-        .blk.settled {
-            border-color: var(--emerald);
-            background: #151f1a;
-            box-shadow: 0 0 10px rgba(61, 139, 110, 0.25);
-            cursor: default;
-        }
-        .blk.settled::after {
-            content: '▪';
-            position: absolute;
-            top: -7px;
-            right: -5px;
-            font-size: 0.55rem;
-            color: var(--emerald-bright);
+        .header-subtitle {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+            letter-spacing: 0.08em;
             opacity: 0.8;
         }
-        .blk.selectable {
-            cursor: pointer;
-            border-color: var(--border-active);
+        .header-badge {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            background: #0d1a12;
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+            opacity: 0.9;
         }
-        .blk.selectable:hover {
-            border-color: var(--gold-bright);
-            box-shadow: 0 0 16px rgba(191, 160, 107, 0.35);
-            transform: translateY(-4px);
-            background: #1d2130;
+
+        /* PROGRESS BAR */
+        .progress-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
         }
-        .blk.error-flash {
-            animation: shake-err 0.45s ease;
-            border-color: var(--crimson-bright) !important;
-            box-shadow: 0 0 22px rgba(231, 76, 60, 0.65) !important;
-            background: #1f1216 !important;
+        .progress-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-primary);
+            opacity: 0.7;
+            white-space: nowrap;
+            letter-spacing: 0.04em;
         }
-        @keyframes shake-err {
+        .progress-track {
+            flex: 1;
+            height: 8px;
+            background: #1a1f28;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-subtle);
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-green), #00c850, var(--accent-cyan));
+            border-radius: 10px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 8px rgba(0, 220, 90, 0.4);
+        }
+        .progress-pct {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent-cyan);
+            min-width: 38px;
+            text-align: right;
+        }
+
+        /* PANELS */
+        .panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 1.4rem 1.6rem;
+            box-shadow: 0 3px 18px rgba(0, 0, 0, 0.4);
+            transition: var(--transition-smooth);
+        }
+        .panel-header {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            letter-spacing: 0.06em;
+            color: var(--accent-amber);
+            margin-bottom: 0.9rem;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .panel-header .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-amber);
+            box-shadow: var(--glow-amber);
+            animation: pulse-dot 1.6s infinite;
+        }
+        @keyframes pulse-dot {
             0%,
             100% {
-                transform: translateX(0);
+                opacity: 1;
             }
-            20% {
-                transform: translateX(-7px);
-            }
-            40% {
-                transform: translateX(7px);
-            }
-            60% {
-                transform: translateX(-5px);
-            }
-            80% {
-                transform: translateX(5px);
+            50% {
+                opacity: 0.3;
             }
         }
-        .blk.placed-glow {
-            border-color: var(--emerald) !important;
-            background: #151f1a !important;
-            animation: place-pop 0.35s ease;
+
+        /* ARRAY DISPLAY */
+        .array-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            justify-content: center;
+            align-items: flex-end;
+            padding: 1rem 0.5rem;
+            min-height: 90px;
+            align-items: center;
+        }
+        .array-block {
+            font-family: var(--font-mono);
+            font-weight: 700;
+            background: var(--bg-card);
+            border: 2px solid #243040;
+            border-radius: 7px;
+            padding: 0.55rem 0.65rem;
+            min-width: 42px;
+            text-align: center;
+            color: #c0d4e0;
+            transition: all var(--transition-fast);
+            user-select: none;
+            position: relative;
             cursor: default;
-            pointer-events: none;
+            font-size: 0.9rem;
+            letter-spacing: 0.03em;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
         }
-        @keyframes place-pop {
+        .array-block.highlight-left {
+            border-color: var(--accent-amber);
+            box-shadow: var(--glow-amber), 0 0 0 3px rgba(240, 160, 48, 0.12);
+            color: #ffe0b0;
+            z-index: 2;
+            animation: pulse-highlight 1s infinite;
+        }
+        .array-block.highlight-right {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 12px rgba(32, 200, 224, 0.45), 0 0 0 3px rgba(32, 200, 224, 0.1);
+            color: #c0f0ff;
+            z-index: 2;
+            animation: pulse-highlight 1s infinite 0.15s;
+        }
+        @keyframes pulse-highlight {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+        .array-block.swapped-flash {
+            animation: flash-swap 0.45s ease-out;
+        }
+        @keyframes flash-swap {
             0% {
-                box-shadow: 0 0 0 rgba(90, 184, 150, 0);
-                transform: scale(1.18);
+                background: #3a2810;
+                border-color: var(--accent-amber);
+                transform: scale(1.1);
             }
             100% {
-                box-shadow: 0 0 16px rgba(90, 184, 150, 0.35);
+                background: var(--bg-card);
+                border-color: #243040;
                 transform: scale(1);
             }
         }
-        .blk.ghosted {
-            opacity: 0.18;
-            pointer-events: none;
+        .array-block.error-flash {
+            animation: flash-err 0.5s ease-out;
+        }
+        @keyframes flash-err {
+            0% {
+                background: #3a1015;
+                border-color: var(--accent-red);
+                box-shadow: var(--glow-red);
+            }
+            100% {
+                background: var(--bg-card);
+                border-color: #243040;
+            }
+        }
+        .array-block.clickable {
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        .array-block.clickable:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 10px rgba(32, 200, 224, 0.35);
+            transform: translateY(-3px);
+            background: #1a2430;
+        }
+        .array-block.clickable:active {
+            transform: scale(0.94);
+            transition: transform 0.08s;
+        }
+        .array-block.in-secure-zone {
+            border-color: #1a4030;
+            background: #0e1a15;
+            color: var(--accent-green);
             cursor: default;
-            border-style: dashed;
-            background: transparent;
+            opacity: 0.85;
+            font-size: 0.78rem;
+            min-width: 34px;
+            padding: 0.4rem 0.5rem;
+        }
+        .array-block.in-buffer-zone {
+            border-color: #2a3545;
+            cursor: pointer;
         }
 
-        .slot-row {
+        /* ZONES */
+        .zones-container {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+        @media (max-width: 700px) {
+            .zones-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+        .zone {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 80px;
             display: flex;
-            gap: 10px;
-            justify-content: center;
-            align-items: center;
             flex-wrap: wrap;
-            padding: 12px 8px;
-            min-height: 70px;
-        }
-        .slot-box {
-            width: 54px;
-            height: 54px;
-            border-radius: var(--radius-sm);
-            border: 2px dashed var(--border-subtle);
-            background: transparent;
-            display: flex;
+            gap: 0.4rem;
             align-items: center;
             justify-content: center;
-            transition: var(--transition-fast);
-            position: relative;
-            flex-shrink: 0;
+            transition: var(--transition-smooth);
         }
-        .slot-box.occupied {
-            border-style: solid;
-            border-color: var(--emerald);
-            background: #151f1a;
-            box-shadow: 0 0 10px rgba(61, 139, 110, 0.2);
-        }
-        .slot-box .slot-label {
-            font-family: var(--font-display);
-            font-size: 0.55rem;
-            color: var(--text-dim);
-            position: absolute;
-            bottom: -18px;
-            letter-spacing: 0.05em;
-            white-space: nowrap;
-        }
-
-        .stats-bar {
-            display: flex;
-            gap: 28px;
-            justify-content: center;
-            padding: 8px 0;
-            font-family: var(--font-display);
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            letter-spacing: 0.05em;
-            flex-wrap: wrap;
-        }
-        .stats-bar .stat-val {
-            color: var(--gold-glow);
-            font-weight: bold;
-        }
-        .stats-bar .stat-err .stat-val {
-            color: var(--crimson-bright);
-        }
-
-        .scan-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            margin: 6px 0 14px;
-            font-family: var(--font-display);
-            color: var(--gold);
-            font-size: 0.82rem;
+        .zone-label {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
             letter-spacing: 0.06em;
-            min-height: 32px;
-        }
-        .scan-indicator .bracket-glow {
-            color: var(--gold-glow);
-            font-weight: bold;
-            animation: pulse-gold 1.1s ease-in-out infinite;
-            font-size: 1rem;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            opacity: 0.7;
+            margin-bottom: 0.4rem;
             width: 100%;
-            height: 100%;
-            background: rgba(5, 6, 10, 0.84);
-            z-index: 200;
+            text-align: center;
+        }
+        .zone-buffer {
+            border-color: #2a3a50;
+            background: #0f141c;
+        }
+        .zone-secure {
+            border-color: #1a3530;
+            background: #0b1412;
+            min-width: 100px;
+        }
+        .zone-arrow {
             display: flex;
             align-items: center;
             justify-content: center;
-            animation: fadeIn 0.25s ease;
+            font-size: 1.8rem;
+            color: var(--accent-amber);
+            opacity: 0.7;
+            font-family: var(--font-mono);
+        }
+
+        /* BUTTONS */
+        .btn {
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            letter-spacing: 0.05em;
+            padding: 0.6rem 1.3rem;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid;
+            transition: all var(--transition-fast);
+            text-transform: uppercase;
+            font-weight: 600;
+            outline: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        .btn-swap {
+            background: #1a1408;
+            border-color: var(--accent-amber);
+            color: var(--accent-amber);
+        }
+        .btn-swap:hover {
+            background: #221a0c;
+            box-shadow: var(--glow-amber);
+            border-color: #f5b840;
+        }
+        .btn-move {
+            background: #0a141a;
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+        .btn-move:hover {
+            background: #0c1a22;
+            box-shadow: 0 0 12px rgba(32, 200, 224, 0.35);
+            border-color: #40d8f0;
+        }
+        .btn-primary {
+            background: #0d1a14;
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        .btn-primary:hover {
+            background: #102218;
+            box-shadow: var(--glow-green);
+            border-color: #30f080;
+        }
+        .btn-danger {
+            background: #1a0d10;
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+        .btn-danger:hover {
+            box-shadow: var(--glow-red);
+        }
+        .btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(40%);
+        }
+        .btn-row {
+            display: flex;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 0.5rem;
+        }
+
+        /* STATS */
+        .stats-row {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            letter-spacing: 0.04em;
+            color: var(--text-primary);
+            opacity: 0.8;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .stat-val {
+            color: var(--accent-cyan);
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+        .stat-val.err {
+            color: var(--accent-red);
+        }
+
+        /* TEXTAREA & INPUT */
+        .input-field,
+        .textarea-field {
+            width: 100%;
+            background: #0d1117;
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 0.7rem 0.9rem;
+            color: #c8d8e8;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            letter-spacing: 0.03em;
+            resize: vertical;
+            transition: var(--transition-fast);
+            outline: none;
+        }
+        .input-field:focus,
+        .textarea-field:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 8px rgba(32, 200, 224, 0.2);
+        }
+        .textarea-field {
+            min-height: 90px;
+        }
+        .char-counter {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--text-primary);
+            opacity: 0.6;
+            text-align: right;
+            margin-top: 0.2rem;
+        }
+        .char-counter.insufficient {
+            color: var(--accent-red);
+            opacity: 0.9;
+        }
+
+        /* INVESTIGATION */
+        .investigation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        @media (max-width: 600px) {
+            .investigation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .investigation-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        .investigation-field label {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            letter-spacing: 0.04em;
+            color: var(--accent-amber);
+            text-transform: uppercase;
+        }
+
+        /* MISC */
+        .hidden {
+            display: none !important;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
         }
         @keyframes fadeIn {
             from {
                 opacity: 0;
+                transform: translateY(12px);
             }
             to {
                 opacity: 1;
-            }
-        }
-        .overlay-dialog {
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-gold);
-            border-radius: var(--radius-md);
-            padding: 32px 28px;
-            max-width: 620px;
-            width: 92%;
-            box-shadow: var(--shadow-card), var(--shadow-gold);
-            animation: slideUp 0.3s ease;
-        }
-        @keyframes slideUp {
-            from {
-                transform: translateY(35px);
-                opacity: 0;
-            }
-            to {
                 transform: translateY(0);
-                opacity: 1;
             }
         }
-        .overlay-dialog h3 {
-            font-family: var(--font-display);
-            color: var(--gold-bright);
-            margin-bottom: 14px;
-            font-size: 1.25rem;
+        .instruction-text {
+            font-family: var(--font-mono);
+            font-size: 0.73rem;
+            letter-spacing: 0.03em;
+            color: var(--text-bright);
+            opacity: 0.85;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+        .pass-indicator {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--accent-purple);
             letter-spacing: 0.05em;
-        }
-        .overlay-dialog p {
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-            font-size: 0.88rem;
-            line-height: 1.6;
-        }
-        .char-counter {
-            text-align: right;
-            font-size: 0.72rem;
-            color: var(--text-dim);
-            margin-top: 3px;
-            letter-spacing: 0.04em;
-        }
-        .char-counter.sufficient {
-            color: var(--emerald-bright);
-        }
-
-        .hidden-el {
-            display: none !important;
-        }
-
-        .reveal-block {
             text-align: center;
-            padding: 16px 0;
+            opacity: 0.8;
         }
-        .reveal-block .algo-name {
-            font-family: var(--font-display);
-            font-size: 1.9rem;
-            color: var(--gold-glow);
-            letter-spacing: 0.07em;
-            text-shadow: 0 0 35px rgba(191, 160, 107, 0.5);
-            display: block;
-            margin: 4px 0;
-        }
-
-        .download-area {
+        .success-banner {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--accent-green);
             text-align: center;
-            margin-top: 26px;
-            padding-top: 22px;
+            letter-spacing: 0.06em;
+            text-shadow: var(--glow-green);
+            padding: 0.5rem;
+        }
+        .separator {
+            border: none;
             border-top: 1px solid var(--border-subtle);
-        }
-        .download-area .btn {
-            font-size: 1.05rem;
-            padding: 13px 34px;
-        }
-
-        @media (max-width: 640px) {
-            .panel {
-                padding: 20px 12px;
-            }
-            .blk,
-            .slot-box {
-                width: 40px;
-                height: 40px;
-                font-size: 0.9rem;
-                border-radius: 5px;
-            }
-            .blocks-row,
-            .slot-row {
-                gap: 5px;
-            }
-            .panel-title {
-                font-size: 1.3rem;
-            }
-            .btn {
-                padding: 9px 16px;
-                font-size: 0.78rem;
-            }
-            .stats-bar {
-                gap: 10px;
-                font-size: 0.7rem;
-            }
-            .overlay-dialog {
-                padding: 20px 16px;
-                width: 96%;
-            }
+            margin: 1rem 0;
         }
     </style>
 </head>
 <body>
-
-    <div id="vault-container">
-        <!-- LANDING -->
-        <section id="sec-landing" class="panel">
-            <h1 class="panel-title">The Archive of Mysteries</h1>
-            <p class="panel-subtitle">Only the keen-eyed may enter the vault</p>
-            <div class="divider-ornament"></div>
-            <p style="text-align:center;color:var(--text-secondary);margin-bottom:22px;font-size:0.9rem;">
-                Two sealed chambers await. Identify yourself to proceed.
-            </p>
-            <div class="form-field">
-                <label for="agent-name-input">Agent Codename</label>
-                <input type="text" id="agent-name-input" placeholder="Enter your full name..." autocomplete="off" maxlength="80">
+    <div class="terminal-overlay"></div>
+    <div class="main-container" id="mainContainer">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-top">
+                <div>
+                    <div class="header-title">The Sorting Protocol</div>
+                    <div class="header-subtitle">Digital Vault Simulation v2.4 — Classified</div>
+                </div>
+                <span class="header-badge" id="headerBadge">PHASE 1 · PROTOCOL A</span>
             </div>
-            <div style="text-align:center;">
-                <button class="btn btn-accent" id="btn-enter-vault" disabled>Enter the Archive</button>
-            </div>
-        </section>
-
-        <!-- CHAMBER ONE: Bubble Sort -->
-        <section id="sec-chamber-one" class="panel hidden-el">
-            <span class="badge-room">Chamber I</span>
-            <h2 class="panel-title">The Dual Scanner</h2>
-            <p class="panel-subtitle">An ancient mechanism inspects adjacent artefacts</p>
-            <div class="divider-ornament"></div>
-            <div class="scan-indicator" id="scan-indicator-text">
-                <span class="bracket-glow">◄</span> Scanner active <span class="bracket-glow">►</span>
-            </div>
-            <div class="blocks-row" id="bubble-blocks-container">
-            </div>
-            <div class="stats-bar">
-                Comparisons: <span class="stat-val" id="disp-comparisons">0</span>
-                &nbsp;|&nbsp; Swaps: <span class="stat-val" id="disp-swaps">0</span>
-            </div>
-            <div style="text-align:center;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:6px;">
-                <button class="btn" id="btn-swap">⇄ Swap</button>
-                <button class="btn" id="btn-next">→ Next</button>
-            </div>
-            <p style="text-align:center;color:var(--text-dim);font-size:0.7rem;margin-top:10px;letter-spacing:0.04em;">
-                Sweep repeatedly until the entire row is secured.
-            </p>
-        </section>
-
-        <!-- CHAMBER TWO: Selection Sort -->
-        <section id="sec-chamber-two" class="panel hidden-el">
-            <span class="badge-room">Chamber II</span>
-            <h2 class="panel-title">The Precision Extract</h2>
-            <p class="panel-subtitle">Locate and extract the smallest remaining artefact</p>
-            <div class="divider-ornament"></div>
-            <p style="text-align:center;color:var(--text-secondary);font-size:0.82rem;margin-bottom:4px;letter-spacing:0.03em;">
-                Top Zone — Chaotic Blocks
-            </p>
-            <div class="blocks-row" id="selection-source-container">
-            </div>
-            <p style="text-align:center;color:var(--text-dim);font-size:0.7rem;margin:2px 0;">↓ Secure Slots ↓</p>
-            <div class="slot-row" id="selection-slots-container">
-            </div>
-            <div class="stats-bar">
-                Errors: <span class="stat-val stat-err" id="disp-errors">0</span>
-            </div>
-        </section>
-
-        <!-- COMPLETION VAULT -->
-        <section id="sec-vault-final" class="panel vault-complete hidden-el">
-            <span class="badge-room fulfilled">Archive Complete</span>
-            <h2 class="panel-title">The Vault Opens</h2>
-            <p class="panel-subtitle">You have deciphered both mechanisms</p>
-            <div class="divider-ornament"></div>
-            <div class="reveal-block">
-                <p style="color:var(--text-secondary);">Chamber I — The Dual Scanner — is known to scholars as</p>
-                <span class="algo-name">Bubble Sort</span>
-                <p style="color:var(--text-secondary);margin-top:14px;">Chamber II — The Precision Extract — is known to scholars as</p>
-                <span class="algo-name">Selection Sort</span>
-            </div>
-            <p style="text-align:center;color:var(--text-secondary);margin-top:16px;font-size:0.85rem;">
-                Your mission is complete, Agent. Download your report below.
-            </p>
-            <div class="download-area">
-                <button class="btn btn-accent" id="btn-download-report">⬇ Download Mission Report</button>
-            </div>
-        </section>
-    </div>
-
-    <!-- Briefing Modal: Chamber One -->
-    <div id="overlay-briefing-one" class="overlay hidden-el">
-        <div class="overlay-dialog">
-            <h3>⚷ Briefing — Chamber I</h3>
-            <p>
-                Agent, we have <strong>10 corrupted data blocks</strong>. You must organise them from lowest to highest.
-            </p>
-            <p>
-                You are restricted to using the <strong>'Dual Scanner'</strong>. It highlights two adjacent blocks.
-                Compare them: if the <strong>left block is larger</strong> than the right, click <strong>'Swap'</strong>.
-                If they are in the correct order, click <strong>'Next'</strong> to move the scanner forward.
-            </p>
-            <p>
-                You must repeat this process, sweeping from left to right multiple times, until the entire row is secured.
-            </p>
-            <div style="text-align:right;margin-top:8px;">
-                <button class="btn btn-accent" id="btn-briefing-one-ack">Understood — Begin</button>
+            <div class="progress-wrapper">
+                <span class="progress-label">MISSION PROGRESS</span>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                </div>
+                <span class="progress-pct" id="progressPct">0%</span>
             </div>
         </div>
-    </div>
 
-    <!-- Briefing Modal: Chamber Two -->
-    <div id="overlay-briefing-two" class="overlay hidden-el">
-        <div class="overlay-dialog">
-            <h3>⚷ Briefing — Chamber II</h3>
-            <p>
-                The previous method was exhausting, wasn't it? Let's try a new tool.
-            </p>
-            <p>
-                You have <strong>10 new chaotic blocks</strong> in the <strong>Top Zone</strong>, and 10 empty secure slots in the
-                <strong>Bottom Zone</strong>.
-            </p>
-            <p>
-                Your task: Scan the Top Zone with your eyes, locate the <strong>absolute lowest number</strong> available,
-                and <strong>click it</strong>. It will instantly lock into the first available slot in the Bottom Zone.
-            </p>
-            <p style="color:var(--crimson-bright);">
-                ⚠ Warning: Clicking a number that is NOT the lowest will trigger a security error.
-            </p>
-            <div style="text-align:right;margin-top:8px;">
-                <button class="btn btn-accent" id="btn-briefing-two-ack">Understood — Begin</button>
+        <!-- GAME PANEL -->
+        <div class="panel fade-in" id="gamePanel">
+            <div class="panel-header">
+                <span class="dot"></span>
+                <span id="panelTitle">LEVEL 1 — THE TRAINING</span>
+            </div>
+            <p class="instruction-text" id="instructionText"></p>
+            <p class="pass-indicator hidden" id="passIndicator"></p>
+
+            <!-- Protocol A display -->
+            <div class="array-container" id="arrayContainer"></div>
+
+            <!-- Protocol B zones -->
+            <div class="zones-container hidden" id="zonesContainer">
+                <div>
+                    <div class="zone-label">🔓 Buffer Zone</div>
+                    <div class="zone zone-buffer" id="bufferZone"></div>
+                </div>
+                <div class="zone-arrow">→</div>
+                <div>
+                    <div class="zone-label">🔒 Secure Zone</div>
+                    <div class="zone zone-secure" id="secureZone"></div>
+                </div>
+            </div>
+
+            <div class="btn-row" id="controlButtons"></div>
+            <div class="stats-row" style="margin-top:1rem;" id="statsRow"></div>
+            <div class="success-banner hidden" id="successBanner">✔ LEVEL COMPLETE — ARRAY SORTED</div>
+        </div>
+
+        <!-- REFLECTION PANEL -->
+        <div class="panel hidden fade-in" id="reflectionPanel">
+            <div class="panel-header"><span class="dot"></span>MISSION REFLECTION</div>
+            <p style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-bright);margin-bottom:0.7rem;" id="reflectionPrompt"></p>
+            <textarea class="textarea-field" id="reflectionTextarea" placeholder="Enter your reflection here (minimum 100 characters)..."></textarea>
+            <p class="char-counter" id="charCounter">0 / 100 characters</p>
+            <div class="btn-row" style="margin-top:0.8rem;">
+                <button class="btn btn-primary" id="btnReflectionSubmit" disabled>Submit Reflection &amp; Continue</button>
             </div>
         </div>
-    </div>
 
-    <!-- Reflection Modal 1 -->
-    <div id="overlay-reflection-one" class="overlay hidden-el">
-        <div class="overlay-dialog">
-            <h3>📜 Reflection — Chamber I</h3>
-            <p>Describe the exact pattern you noticed. What happened to the largest numbers during your first few sweeps across the row?</p>
-            <div class="form-field">
-                <textarea id="reflection-one-textarea" placeholder="Write your observations here... (minimum 80 characters)"></textarea>
-                <div class="char-counter" id="reflection-one-counter">0 / 80+ characters</div>
+        <!-- INVESTIGATION PANEL -->
+        <div class="panel hidden fade-in" id="investigationPanel">
+            <div class="panel-header"><span class="dot"></span>DECRYPTION PORTAL — INVESTIGATION</div>
+            <p style="font-family:var(--font-mono);font-size:0.73rem;color:var(--text-bright);margin-bottom:1rem;line-height:1.5;">
+                These protocols are real-world algorithms. Search the internet to identify them. Complete all fields to unlock the mission report.
+            </p>
+            <div class="investigation-grid">
+                <div class="investigation-field">
+                    <label for="studentName">Student Name</label>
+                    <input type="text" class="input-field" id="studentName" placeholder="Enter your full name...">
+                </div>
+                <div class="investigation-field">
+                    <label for="protoAName">Identification of Protocol A</label>
+                    <input type="text" class="input-field" id="protoAName" placeholder="Algorithm name...">
+                </div>
+                <div class="investigation-field">
+                    <label for="protoAUrl">Source URL for Protocol A</label>
+                    <input type="url" class="input-field" id="protoAUrl" placeholder="https://...">
+                </div>
+                <div class="investigation-field">
+                    <label for="protoBName">Identification of Protocol B</label>
+                    <input type="text" class="input-field" id="protoBName" placeholder="Algorithm name...">
+                </div>
+                <div class="investigation-field">
+                    <label for="protoBUrl">Source URL for Protocol B</label>
+                    <input type="url" class="input-field" id="protoBUrl" placeholder="https://...">
+                </div>
             </div>
-            <div style="text-align:right;">
-                <button class="btn btn-accent" id="btn-reflection-one-continue" disabled>Continue to Chamber II</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Reflection Modal 2 -->
-    <div id="overlay-reflection-two" class="overlay hidden-el">
-        <div class="overlay-dialog">
-            <h3>📜 Reflection — Chamber II</h3>
-            <p>How does this extraction method differ from the Dual Scanner? In terms of human effort, which one felt faster and why?</p>
-            <div class="form-field">
-                <textarea id="reflection-two-textarea" placeholder="Write your comparison here... (minimum 80 characters)"></textarea>
-                <div class="char-counter" id="reflection-two-counter">0 / 80+ characters</div>
-            </div>
-            <div style="text-align:right;">
-                <button class="btn btn-accent" id="btn-reflection-two-continue" disabled>Open the Vault</button>
+            <div class="btn-row" style="margin-top:1.2rem;">
+                <button class="btn btn-primary" id="btnGenerateReport" disabled>🔐 Generate Secure Report</button>
             </div>
         </div>
     </div>
 
     <script>
         (function() {
-            const _K = 10;
-            const _MIN_CHARS = 80;
+            // ============================================================
+            // OBFUSCATED ALGORITHM LOGIC VARIABLES (non-descriptive names)
+            // ============================================================
+            let _dSet = []; // current working data array
+            let _cPtr = 0; // current adjacent-pair pointer (Protocol A)
+            let _pCnt = 1; // current pass number (Protocol A)
+            let _pSwp = 0; // swaps performed in current pass (Protocol A)
+            let _swpTot = 0; // total swaps this level (Protocol A) or total clicks (Protocol B)
+            let _errTot = 0; // total errors this level
+            let _bZne = []; // buffer zone array (Protocol B)
+            let _sZne = []; // secure zone array (Protocol B)
+            let _lvl = 1; // current level (1-6)
+            let _pTcl = 'A'; // current protocol ('A' or 'B')
+            let _lvlDone = false; // whether current level is complete
 
-            const $secLanding = document.getElementById('sec-landing');
-            const $secChamberOne = document.getElementById('sec-chamber-one');
-            const $secChamberTwo = document.getElementById('sec-chamber-two');
-            const $secVaultFinal = document.getElementById('sec-vault-final');
-            const $overlayBriefOne = document.getElementById('overlay-briefing-one');
-            const $overlayBriefTwo = document.getElementById('overlay-briefing-two');
-            const $overlayReflOne = document.getElementById('overlay-reflection-one');
-            const $overlayReflTwo = document.getElementById('overlay-reflection-two');
-            const $agentInput = document.getElementById('agent-name-input');
-            const $btnEnter = document.getElementById('btn-enter-vault');
-            const $bubbleContainer = document.getElementById('bubble-blocks-container');
-            const $scanIndicator = document.getElementById('scan-indicator-text');
-            const $dispComparisons = document.getElementById('disp-comparisons');
-            const $dispSwaps = document.getElementById('disp-swaps');
-            const $btnSwap = document.getElementById('btn-swap');
-            const $btnNext = document.getElementById('btn-next');
-            const $selectionSource = document.getElementById('selection-source-container');
-            const $selectionSlots = document.getElementById('selection-slots-container');
-            const $dispErrors = document.getElementById('disp-errors');
-            const $txtReflOne = document.getElementById('reflection-one-textarea');
-            const $cntReflOne = document.getElementById('reflection-one-counter');
-            const $btnReflOneCont = document.getElementById('btn-reflection-one-continue');
-            const $txtReflTwo = document.getElementById('reflection-two-textarea');
-            const $cntReflTwo = document.getElementById('reflection-two-counter');
-            const $btnReflTwoCont = document.getElementById('btn-reflection-two-continue');
-            const $btnDownload = document.getElementById('btn-download-report');
-            const $btnBriefOneAck = document.getElementById('btn-briefing-one-ack');
-            const $btnBriefTwoAck = document.getElementById('btn-briefing-two-ack');
+            // Per-level stats storage
+            let _lvlStats = []; // array of {swapsOrClicks, errors}
+            let _reflectionA = '';
+            let _reflectionB = '';
 
-            let _agentRef = '';
-            let _tallyC = 0;
-            let _tallyS = 0;
-            let _tallyE = 0;
-            let _insightA = '';
-            let _insightB = '';
-            let _timeMark = '';
-
-            let _collX = [];
-            let _scanPos = 0;
-            let _collXLocked = false;
-
-            let _poolY = [];
-            let _slotPos = 0;
-            let _poolYLocked = false;
-
-            function _shufX(src) {
-                const a = src.slice();
-                for (let i = a.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [a[i], a[j]] = [a[j], a[i]];
-                }
-                return a;
-            }
-
-            function _genDistinct(count, lo, hi) {
-                const pool = [];
-                for (let i = lo; i <= hi; i++) pool.push(i);
-                return _shufX(pool).slice(0, count);
-            }
-
-            function _vT(arr) {
-                for (let i = 0; i < arr.length - 1; i++) {
-                    if (arr[i] > arr[i + 1]) return false;
+            // ============================================================
+            // DYNAMIC VALIDATION FUNCTION (no pre-defined sorted arrays)
+            // ============================================================
+            function _checkZ(_arr) {
+                for (let _i = 0; _i < _arr.length - 1; _i++) {
+                    if (_arr[_i] > _arr[_i + 1]) return false;
                 }
                 return true;
             }
 
-            function _showOnly($el) {
-                [$secLanding, $secChamberOne, $secChamberTwo, $secVaultFinal].forEach(function(s) {
-                    s.classList.add('hidden-el');
-                });
-                if ($el) $el.classList.remove('hidden-el');
-            }
-
-            function _sanitiseFilename(n) {
-                return n.replace(/[^a-zA-Z0-9_\- ]/g, '').replace(/\s+/g, '_').substring(0, 55) || 'Agent';
-            }
-
-            function _renderBubble() {
-                $bubbleContainer.innerHTML = '';
-                for (let i = 0; i < _collX.length; i++) {
-                    const blk = document.createElement('div');
-                    blk.className = 'blk';
-                    blk.textContent = _collX[i];
-                    blk.dataset.idx = i;
-                    if (!_collXLocked && (i === _scanPos || i === _scanPos + 1)) {
-                        blk.classList.add('scanning');
-                    }
-                    const settledSet = _calcSettled();
-                    if (settledSet.has(i)) {
-                        blk.classList.add('settled');
-                    }
-                    $bubbleContainer.appendChild(blk);
+            // ============================================================
+            // UTILITY: GENERATE RANDOM UNIQUE ARRAY
+            // ============================================================
+            function _genRandArr(_size) {
+                const _pool = [];
+                const _maxVal = _size <= 5 ? 99 : (_size <= 10 ? 250 : 600);
+                for (let _i = 0; _i < _maxVal; _i++) _pool.push(_i + 1);
+                // Fisher-Yates shuffle
+                for (let _i = _pool.length - 1; _i > 0; _i--) {
+                    const _j = Math.floor(Math.random() * (_i + 1));
+                    [_pool[_i], _pool[_j]] = [_pool[_j], _pool[_i]];
                 }
-                _updateScanText();
-            }
-
-            function _calcSettled() {
-                const s = new Set();
-                const t = _collX.slice().sort(function(a, b) { return a - b; });
-                for (let i = _collX.length - 1; i >= 0; i--) {
-                    if (_collX[i] === t[i]) {
-                        s.add(i);
-                    } else {
-                        break;
-                    }
+                const _result = _pool.slice(0, _size);
+                // Ensure not already sorted
+                if (_checkZ(_result) && _size > 1) {
+                    // Swap first two to break sort
+                    [_result[0], _result[1]] = [_result[1], _result[0]];
                 }
-                return s;
+                return _result;
             }
 
-            function _updateScanText() {
-                if (_collXLocked) {
-                    $scanIndicator.innerHTML =
-                        '<span style="color:#5ab896;">✓ Row secured — Chamber I complete</span>';
+            // ============================================================
+            // DOM REFERENCES
+            // ============================================================
+            const $ = (sel) => document.querySelector(sel);
+            const $$ = (sel) => document.querySelectorAll(sel);
+
+            const domMainContainer = $('#mainContainer');
+            const domHeaderBadge = $('#headerBadge');
+            const domProgressFill = $('#progressFill');
+            const domProgressPct = $('#progressPct');
+            const domGamePanel = $('#gamePanel');
+            const domPanelTitle = $('#panelTitle');
+            const domInstructionText = $('#instructionText');
+            const domPassIndicator = $('#passIndicator');
+            const domArrayContainer = $('#arrayContainer');
+            const domZonesContainer = $('#zonesContainer');
+            const domBufferZone = $('#bufferZone');
+            const domSecureZone = $('#secureZone');
+            const domControlButtons = $('#controlButtons');
+            const domStatsRow = $('#statsRow');
+            const domSuccessBanner = $('#successBanner');
+            const domReflectionPanel = $('#reflectionPanel');
+            const domReflectionPrompt = $('#reflectionPrompt');
+            const domReflectionTextarea = $('#reflectionTextarea');
+            const domCharCounter = $('#charCounter');
+            const domBtnReflectionSubmit = $('#btnReflectionSubmit');
+            const domInvestigationPanel = $('#investigationPanel');
+            const domStudentName = $('#studentName');
+            const domProtoAName = $('#protoAName');
+            const domProtoAUrl = $('#protoAUrl');
+            const domProtoBName = $('#protoBName');
+            const domProtoBUrl = $('#protoBUrl');
+            const domBtnGenerateReport = $('#btnGenerateReport');
+
+            // ============================================================
+            // PROGRESS BAR UPDATE
+            // ============================================================
+            function _updateProgress(_completedSteps) {
+                const _total = 7; // 6 levels + investigation
+                const _pct = Math.round((_completedSteps / _total) * 100);
+                domProgressFill.style.width = _pct + '%';
+                domProgressPct.textContent = _pct + '%';
+            }
+
+            // ============================================================
+            // RENDER ARRAY FOR PROTOCOL A
+            // ============================================================
+            function _renderProtocolA() {
+                domArrayContainer.innerHTML = '';
+                domZonesContainer.classList.add('hidden');
+                domArrayContainer.classList.remove('hidden');
+                domPassIndicator.classList.remove('hidden');
+                domPassIndicator.textContent =
+                    'Pass ' + _pCnt + ' | Pair index: ' + (_cPtr + 1) + ' of ' + (_dSet.length - 1);
+
+                for (let _i = 0; _i < _dSet.length; _i++) {
+                    const _block = document.createElement('div');
+                    _block.classList.add('array-block');
+                    _block.textContent = _dSet[_i];
+                    _block.dataset.index = _i;
+
+                    if (_i === _cPtr && _cPtr < _dSet.length - 1) {
+                        _block.classList.add('highlight-left');
+                    }
+                    if (_i === _cPtr + 1 && _cPtr < _dSet.length - 1) {
+                        _block.classList.add('highlight-right');
+                    }
+                    domArrayContainer.appendChild(_block);
+                }
+            }
+
+            // ============================================================
+            // RENDER ZONES FOR PROTOCOL B
+            // ============================================================
+            function _renderProtocolB() {
+                domArrayContainer.classList.add('hidden');
+                domZonesContainer.classList.remove('hidden');
+                domPassIndicator.classList.add('hidden');
+                domBufferZone.innerHTML = '';
+                domSecureZone.innerHTML = '';
+
+                for (let _i = 0; _i < _bZne.length; _i++) {
+                    const _block = document.createElement('div');
+                    _block.classList.add('array-block', 'clickable', 'in-buffer-zone');
+                    _block.textContent = _bZne[_i];
+                    _block.dataset.bufferIndex = _i;
+                    _block.addEventListener('click', function() {
+                        _handleBufferClick(parseInt(this.dataset.bufferIndex), this);
+                    });
+                    domBufferZone.appendChild(_block);
+                }
+                for (let _i = 0; _i < _sZne.length; _i++) {
+                    const _block = document.createElement('div');
+                    _block.classList.add('array-block', 'in-secure-zone');
+                    _block.textContent = _sZne[_i];
+                    domSecureZone.appendChild(_block);
+                }
+            }
+
+            // ============================================================
+            // HANDLE BUFFER CLICK (PROTOCOL B)
+            // ============================================================
+            function _handleBufferClick(_idx, _domEl) {
+                if (_lvlDone) return;
+                if (_pTcl !== 'B') return;
+
+                const _minVal = Math.min(..._bZne);
+                const _clickedVal = _bZne[_idx];
+
+                if (_clickedVal === _minVal) {
+                    // Correct selection
+                    _swpTot++;
+                    _sZne.push(_clickedVal);
+                    _bZne.splice(_idx, 1);
+                    _renderProtocolB();
+                    _updateStatsDisplay();
+
+                    if (_bZne.length === 0) {
+                        _onLevelComplete();
+                    }
+                } else {
+                    // Error
+                    _errTot++;
+                    _domEl.classList.add('error-flash');
+                    setTimeout(() => _domEl.classList.remove('error-flash'), 500);
+                    _updateStatsDisplay();
+                    // Brief shake on the buffer zone
+                    domBufferZone.style.animation = 'none';
+                    void domBufferZone.offsetWidth;
+                    domBufferZone.style.animation = 'flash-err 0.5s ease-out';
+                    setTimeout(() => { domBufferZone.style.animation = ''; }, 500);
+                }
+            }
+
+            // ============================================================
+            // UPDATE STATS DISPLAY
+            // ============================================================
+            function _updateStatsDisplay() {
+                const _label = _pTcl === 'A' ? 'Swaps' : 'Clicks';
+                domStatsRow.innerHTML =
+                    '<span class="stat-item">' + _label + ': <span class="stat-val">' + _swpTot + '</span></span>' +
+                    '<span class="stat-item">Errors: <span class="stat-val err">' + _errTot + '</span></span>';
+            }
+
+            // ============================================================
+            // PROTOCOL A: SWAP ACTION
+            // ============================================================
+            function _actionSwap() {
+                if (_lvlDone || _pTcl !== 'A') return;
+                if (_cPtr >= _dSet.length - 1) return;
+
+                const _left = _dSet[_cPtr];
+                const _right = _dSet[_cPtr + 1];
+
+                if (_left <= _right) {
+                    // Unnecessary swap — error
+                    _errTot++;
+                    _updateStatsDisplay();
+                    _flashBlocksError();
+                } else {
+                    // Correct swap
+                    _swpTot++;
+                    _pSwp++;
+                    [_dSet[_cPtr], _dSet[_cPtr + 1]] = [_dSet[_cPtr + 1], _dSet[_cPtr]];
+                    _updateStatsDisplay();
+                    _flashBlocksSwap();
+                }
+                _advancePointer();
+            }
+
+            // ============================================================
+            // PROTOCOL A: MOVE ACTION
+            // ============================================================
+            function _actionMove() {
+                if (_lvlDone || _pTcl !== 'A') return;
+                if (_cPtr >= _dSet.length - 1) return;
+
+                const _left = _dSet[_cPtr];
+                const _right = _dSet[_cPtr + 1];
+
+                if (_left > _right) {
+                    // Missed swap — error
+                    _errTot++;
+                    _updateStatsDisplay();
+                    _flashBlocksError();
+                }
+                _advancePointer();
+            }
+
+            // ============================================================
+            // ADVANCE POINTER (PROTOCOL A)
+            // ============================================================
+            function _advancePointer() {
+                _cPtr++;
+                if (_cPtr >= _dSet.length - 1) {
+                    // Pass complete
+                    if (_pSwp === 0 && _checkZ(_dSet)) {
+                        // Sorted
+                        _renderProtocolA();
+                        _onLevelComplete();
+                        return;
+                    }
+                    // Start new pass
+                    _cPtr = 0;
+                    _pCnt++;
+                    _pSwp = 0;
+                }
+                // Check if sorted after pointer advance
+                if (_checkZ(_dSet) && _pSwp === 0 && _cPtr === 0 && _pCnt > 1) {
+                    _renderProtocolA();
+                    _onLevelComplete();
                     return;
                 }
-                if (_scanPos < _K - 1) {
-                    $scanIndicator.innerHTML =
-                        '<span class="bracket-glow">◄</span> Examining positions ' + (_scanPos + 1) + ' & ' + (_scanPos +
-                            2) +
-                        ' <span class="bracket-glow">►</span>';
+                // Also check if sorted at any point
+                if (_checkZ(_dSet)) {
+                    _renderProtocolA();
+                    _onLevelComplete();
+                    return;
+                }
+                _renderProtocolA();
+            }
+
+            // ============================================================
+            // FLASH EFFECTS
+            // ============================================================
+            function _flashBlocksSwap() {
+                const _blocks = domArrayContainer.querySelectorAll('.array-block');
+                if (_blocks[_cPtr]) {
+                    _blocks[_cPtr].classList.add('swapped-flash');
+                    setTimeout(() => _blocks[_cPtr] && _blocks[_cPtr].classList.remove('swapped-flash'), 450);
+                }
+                if (_blocks[_cPtr + 1]) {
+                    _blocks[_cPtr + 1].classList.add('swapped-flash');
+                    setTimeout(() => _blocks[_cPtr + 1] && _blocks[_cPtr + 1].classList.remove('swapped-flash'),
+                    450);
+                }
+            }
+
+            function _flashBlocksError() {
+                const _blocks = domArrayContainer.querySelectorAll('.array-block');
+                if (_blocks[_cPtr]) {
+                    _blocks[_cPtr].classList.add('error-flash');
+                    setTimeout(() => _blocks[_cPtr] && _blocks[_cPtr].classList.remove('error-flash'), 500);
+                }
+                if (_blocks[_cPtr + 1]) {
+                    _blocks[_cPtr + 1].classList.add('error-flash');
+                    setTimeout(() => _blocks[_cPtr + 1] && _blocks[_cPtr + 1].classList.remove('error-flash'), 500);
+                }
+            }
+
+            // ============================================================
+            // ON LEVEL COMPLETE
+            // ============================================================
+            function _onLevelComplete() {
+                _lvlDone = true;
+                _lvlStats.push({ swapsOrClicks: _swpTot, errors: _errTot });
+                domSuccessBanner.classList.remove('hidden');
+                domControlButtons.innerHTML = '';
+                _updateProgress(_lvl);
+
+                if (_lvl === 3) {
+                    // Trigger Reflection A
+                    setTimeout(() => _showReflection('A'), 800);
+                } else if (_lvl === 6) {
+                    // Trigger Reflection B
+                    setTimeout(() => _showReflection('B'), 800);
                 } else {
-                    $scanIndicator.innerHTML =
-                        '<span style="color:#e8d09f;">Pass complete — resetting scanner for next cycle...</span>';
+                    // Auto-advance to next level
+                    setTimeout(() => _advanceLevel(), 1200);
                 }
             }
 
-            function _procQ() {
-                if (_vT(_collX)) {
-                    _collXLocked = true;
-                    $btnSwap.disabled = true;
-                    $btnNext.disabled = true;
-                    _renderBubble();
-                    $scanIndicator.innerHTML =
-                        '<span style="color:#5ab896;">✓ Row secured — Chamber I complete</span>';
-                    setTimeout(function() {
-                        _showReflectionOne();
-                    }, 550);
-                    return true;
-                }
-                return false;
-            }
+            // ============================================================
+            // SHOW REFLECTION
+            // ============================================================
+            function _showReflection(_which) {
+                domGamePanel.style.opacity = '0.6';
+                domReflectionPanel.classList.remove('hidden');
+                domReflectionPanel.classList.add('fade-in');
+                domReflectionTextarea.value = '';
+                domCharCounter.textContent = '0 / 100 characters';
+                domCharCounter.classList.add('insufficient');
+                domBtnReflectionSubmit.disabled = true;
 
-            function _advanceScanner() {
-                _scanPos++;
-                if (_scanPos >= _K - 1) {
-                    _renderBubble();
-                    if (!_vT(_collX)) {
-                        _scanPos = 0;
-                        setTimeout(function() {
-                            _renderBubble();
-                            $btnSwap.disabled = false;
-                            $btnNext.disabled = false;
-                        }, 400);
-                        $btnSwap.disabled = true;
-                        $btnNext.disabled = true;
-                    } else {
-                        _procQ();
-                    }
+                if (_which === 'A') {
+                    domReflectionPrompt.textContent =
+                        'Reflection A: What happened to the efficiency as the number of blocks doubled and then doubled again? Describe your strategy for the 20-block set.';
                 } else {
-                    _renderBubble();
+                    domReflectionPrompt.textContent =
+                        'Reflection B: Compare Protocol B with Protocol A. Which one felt more mentally taxing even if it required fewer clicks? Why?';
                 }
+                domReflectionTextarea.focus();
             }
 
-            function _handleSwap() {
-                if (_collXLocked || _scanPos >= _K - 1) return;
-                _tallyC++;
-                const a = _collX[_scanPos];
-                const b = _collX[_scanPos + 1];
-                if (a > b) {
-                    _collX[_scanPos] = b;
-                    _collX[_scanPos + 1] = a;
-                    _tallyS++;
+            // ============================================================
+            // ADVANCE LEVEL
+            // ============================================================
+            function _advanceLevel() {
+                _lvl++;
+                _lvlDone = false;
+                domSuccessBanner.classList.add('hidden');
+                domGamePanel.style.opacity = '1';
+                domReflectionPanel.classList.add('hidden');
+                domReflectionPanel.classList.remove('fade-in');
+
+                if (_lvl <= 3) {
+                    _pTcl = 'A';
+                    domHeaderBadge.textContent = 'PHASE 1 · PROTOCOL A';
+                } else if (_lvl <= 6) {
+                    _pTcl = 'B';
+                    domHeaderBadge.textContent = 'PHASE 2 · PROTOCOL B';
+                }
+
+                _initLevel();
+                _updateProgress(_lvl - 1);
+            }
+
+            // ============================================================
+            // INITIALISE LEVEL
+            // ============================================================
+            function _initLevel() {
+                _lvlDone = false;
+                _swpTot = 0;
+                _errTot = 0;
+                _cPtr = 0;
+                _pCnt = 1;
+                _pSwp = 0;
+                _bZne = [];
+                _sZne = [];
+                domSuccessBanner.classList.add('hidden');
+                domControlButtons.innerHTML = '';
+                domStatsRow.innerHTML = '';
+
+                const _sizeMap = { 1: 5, 2: 10, 3: 20, 4: 5, 5: 10, 6: 20 };
+                const _size = _sizeMap[_lvl] || 5;
+                _dSet = _genRandArr(_size);
+
+                const _levelNames = {
+                    1: 'LEVEL 1 — THE TRAINING (Protocol A)',
+                    2: 'LEVEL 2 — THE TASK (Protocol A)',
+                    3: 'LEVEL 3 — THE GRIND (Protocol A)',
+                    4: 'LEVEL 4 — THE EXTRACTION (Protocol B)',
+                    5: 'LEVEL 5 — THE SWEEP (Protocol B)',
+                    6: 'LEVEL 6 — THE ENDGAME (Protocol B)'
+                };
+                domPanelTitle.textContent = _levelNames[_lvl] || ('LEVEL ' + _lvl);
+
+                if (_pTcl === 'A') {
+                    domZonesContainer.classList.add('hidden');
+                    domArrayContainer.classList.remove('hidden');
+                    domPassIndicator.classList.remove('hidden');
+                    domInstructionText.textContent =
+                        'Compare the two highlighted adjacent blocks. If the LEFT block is GREATER than the RIGHT, click SWAP. Otherwise, click MOVE to proceed to the next pair.';
+                    domControlButtons.innerHTML =
+                        '<button class="btn btn-swap" id="btnSwap">↔ Swap</button>' +
+                        '<button class="btn btn-move" id="btnMove">→ Move</button>';
+                    document.getElementById('btnSwap').addEventListener('click', _actionSwap);
+                    document.getElementById('btnMove').addEventListener('click', _actionMove);
+                    _renderProtocolA();
                 } else {
-                    [_collX[_scanPos], _collX[_scanPos + 1]] = [b, a];
-                    _tallyS++;
+                    domArrayContainer.classList.add('hidden');
+                    domZonesContainer.classList.remove('hidden');
+                    domPassIndicator.classList.add('hidden');
+                    domInstructionText.textContent =
+                        'Identify the SMALLEST value in the Buffer Zone. Click it to transfer it to the Secure Zone.';
+                    domControlButtons.innerHTML = '';
+                    _bZne = [..._dSet];
+                    _sZne = [];
+                    _renderProtocolB();
                 }
-                $dispComparisons.textContent = _tallyC;
-                $dispSwaps.textContent = _tallyS;
-                _advanceScanner();
-                if (!_collXLocked) _procQ();
+                _updateStatsDisplay();
             }
 
-            function _handleNext() {
-                if (_collXLocked || _scanPos >= _K - 1) return;
-                _tallyC++;
-                $dispComparisons.textContent = _tallyC;
-                _advanceScanner();
-                if (!_collXLocked) _procQ();
+            // ============================================================
+            // REFLECTION SUBMIT
+            // ============================================================
+            domBtnReflectionSubmit.addEventListener('click', function() {
+                const _text = domReflectionTextarea.value.trim();
+                if (_text.length < 100) return;
+
+                if (_lvl === 3) {
+                    _reflectionA = _text;
+                    domReflectionPanel.classList.add('hidden');
+                    domReflectionPanel.classList.remove('fade-in');
+                    domGamePanel.style.opacity = '1';
+                    _advanceLevel();
+                } else if (_lvl === 6) {
+                    _reflectionB = _text;
+                    domReflectionPanel.classList.add('hidden');
+                    domReflectionPanel.classList.remove('fade-in');
+                    domGamePanel.style.opacity = '1';
+                    _updateProgress(6);
+                    _showInvestigation();
+                }
+            });
+
+            // ============================================================
+            // SHOW INVESTIGATION PORTAL
+            // ============================================================
+            function _showInvestigation() {
+                domGamePanel.style.opacity = '0.55';
+                domInvestigationPanel.classList.remove('hidden');
+                domInvestigationPanel.classList.add('fade-in');
+                domStudentName.value = '';
+                domProtoAName.value = '';
+                domProtoAUrl.value = '';
+                domProtoBName.value = '';
+                domProtoBUrl.value = '';
+                domBtnGenerateReport.disabled = true;
+                _updateProgress(6);
             }
 
-            function _renderSelection() {
-                $selectionSource.innerHTML = '';
-                const remaining = _poolY.filter(function(it) { return !it.placed; });
-                for (const item of _poolY) {
-                    const blk = document.createElement('div');
-                    blk.className = 'blk';
-                    if (item.placed) {
-                        blk.classList.add('ghosted');
-                    } else if (!_poolYLocked && remaining.length > 0) {
-                        blk.classList.add('selectable');
-                    }
-                    blk.textContent = item.val;
-                    blk.dataset.pid = item.pid;
-                    if (!item.placed && !_poolYLocked) {
-                        blk.addEventListener('click', function() {
-                            _handleSelectionClick(item, blk);
-                        });
-                    }
-                    $selectionSource.appendChild(blk);
-                }
-                $selectionSlots.innerHTML = '';
-                for (let s = 0; s < _K; s++) {
-                    const slot = document.createElement('div');
-                    slot.className = 'slot-box';
-                    if (s < _slotPos) {
-                        slot.classList.add('occupied');
-                        const placedItem = _poolY.find(function(it) { return it.placed && it.slotIdx ===
-                            s; });
-                        if (placedItem) {
-                            const inner = document.createElement('div');
-                            inner.className = 'blk placed-glow';
-                            inner.textContent = placedItem.val;
-                            inner.style.width = '100%';
-                            inner.style.height = '100%';
-                            inner.style.fontSize = '1.1rem';
-                            slot.appendChild(inner);
-                        }
-                    }
-                    const lbl = document.createElement('span');
-                    lbl.className = 'slot-label';
-                    lbl.textContent = 'S' + (s + 1);
-                    slot.appendChild(lbl);
-                    $selectionSlots.appendChild(slot);
-                }
+            // ============================================================
+            // VALIDATE INVESTIGATION FIELDS
+            // ============================================================
+            function _validateInvestigationFields() {
+                const _name = domStudentName.value.trim();
+                const _aName = domProtoAName.value.trim();
+                const _aUrl = domProtoAUrl.value.trim();
+                const _bName = domProtoBName.value.trim();
+                const _bUrl = domProtoBUrl.value.trim();
+                const _allFilled = _name.length > 0 && _aName.length > 0 && _aUrl.length > 0 && _bName.length > 0 &&
+                    _bUrl.length > 0;
+                domBtnGenerateReport.disabled = !_allFilled;
             }
 
-            function _findMinVal(pool) {
-                let mv = Infinity;
-                for (const it of pool) {
-                    if (!it.placed && it.val < mv) mv = it.val;
-                }
-                return mv;
-            }
+            [domStudentName, domProtoAName, domProtoAUrl, domProtoBName, domProtoBUrl].forEach(function(_el) {
+                _el.addEventListener('input', _validateInvestigationFields);
+            });
 
-            function _handleSelectionClick(item, blkEl) {
-                if (_poolYLocked || item.placed) return;
-                const minVal = _findMinVal(_poolY);
-                if (item.val === minVal) {
-                    item.placed = true;
-                    item.slotIdx = _slotPos;
-                    _slotPos++;
-                    _renderSelection();
-                    if (_slotPos >= _K) {
-                        _poolYLocked = true;
-                        setTimeout(function() {
-                            _showReflectionTwo();
-                        }, 500);
-                    }
+            // ============================================================
+            // REFLECTION TEXTAREA CHARACTER COUNT
+            // ============================================================
+            domReflectionTextarea.addEventListener('input', function() {
+                const _len = domReflectionTextarea.value.length;
+                domCharCounter.textContent = _len + ' / 100 characters';
+                if (_len >= 100) {
+                    domCharCounter.classList.remove('insufficient');
+                    domBtnReflectionSubmit.disabled = false;
                 } else {
-                    _tallyE++;
-                    $dispErrors.textContent = _tallyE;
-                    blkEl.classList.add('error-flash');
-                    setTimeout(function() {
-                        blkEl.classList.remove('error-flash');
-                    }, 450);
+                    domCharCounter.classList.add('insufficient');
+                    domBtnReflectionSubmit.disabled = true;
                 }
-            }
+            });
 
-            function _showReflectionOne() {
-                $overlayReflOne.classList.remove('hidden-el');
-                $txtReflOne.value = '';
-                $cntReflOne.textContent = '0 / 80+ characters';
-                $cntReflOne.classList.remove('sufficient');
-                $btnReflOneCont.disabled = true;
-                setTimeout(function() { $txtReflOne.focus(); }, 150);
-            }
+            // ============================================================
+            // GENERATE SECURE REPORT
+            // ============================================================
+            domBtnGenerateReport.addEventListener('click', function() {
+                const _studentName = domStudentName.value.trim();
+                const _protoANameVal = domProtoAName.value.trim();
+                const _protoAUrlVal = domProtoAUrl.value.trim();
+                const _protoBNameVal = domProtoBName.value.trim();
+                const _protoBUrlVal = domProtoBUrl.value.trim();
 
-            function _showReflectionTwo() {
-                $overlayReflTwo.classList.remove('hidden-el');
-                $txtReflTwo.value = '';
-                $cntReflTwo.textContent = '0 / 80+ characters';
-                $cntReflTwo.classList.remove('sufficient');
-                $btnReflTwoCont.disabled = true;
-                setTimeout(function() { $txtReflTwo.focus(); }, 150);
-            }
+                if (!_studentName || !_protoANameVal || !_protoAUrlVal || !_protoBNameVal || !_protoBUrlVal)
+                    return;
 
-            function _updateCharCounter(textarea, counterEl, btnEl) {
-                const trimmed = textarea.value.trim();
-                const len = trimmed.length;
-                counterEl.textContent = len + ' / 80+ characters';
-                if (len >= _MIN_CHARS) {
-                    counterEl.classList.add('sufficient');
-                    btnEl.disabled = false;
-                } else {
-                    counterEl.classList.remove('sufficient');
-                    btnEl.disabled = true;
-                }
-            }
+                const _now = new Date();
+                const _timestamp = _now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
 
-            function _initChamberOne() {
-                const vals = _genDistinct(_K, 1, 99);
-                _collX = vals.slice();
-                while (_vT(_collX)) {
-                    _collX = _shufX(vals).slice();
-                }
-                _scanPos = 0;
-                _tallyC = 0;
-                _tallyS = 0;
-                _collXLocked = false;
-                $dispComparisons.textContent = '0';
-                $dispSwaps.textContent = '0';
-                $btnSwap.disabled = false;
-                $btnNext.disabled = false;
-                _renderBubble();
-            }
+                let _report = '';
+                _report += '═══════════════════════════════════════════\n';
+                _report += '  THE SORTING PROTOCOL — MISSION REPORT\n';
+                _report += '  Digital Vault Simulation v2.4\n';
+                _report += '═══════════════════════════════════════════\n\n';
+                _report += 'Student Name:    ' + _studentName + '\n';
+                _report += 'Timestamp:       ' + _timestamp + '\n';
+                _report += 'Status:          COMPLETE\n\n';
+                _report += '───────────────────────────────────────────\n';
+                _report += '  PERFORMANCE STATISTICS\n';
+                _report += '───────────────────────────────────────────\n';
 
-            function _initChamberTwo() {
-                const vals = _genDistinct(_K, 1, 99);
-                _poolY = vals.map(function(v, idx) {
-                    return { val: v, pid: 'p' + idx, placed: false, slotIdx: -1 };
-                });
-                _slotPos = 0;
-                _tallyE = 0;
-                _poolYLocked = false;
-                $dispErrors.textContent = '0';
-                _renderSelection();
-            }
-
-            function _generateReport() {
-                const safeName = _sanitiseFilename(_agentRef);
-                const lines = [
-                    '═══════════════════════════════════',
-                    '       MISSION REPORT',
-                    '   The Archive of Mysteries',
-                    '═══════════════════════════════════',
-                    '',
-                    'Agent Codename: ' + _agentRef,
-                    'Completion Timestamp: ' + (_timeMark || new Date().toLocaleString('en-GB', {
-                        day: '2-digit',
-                        month: 'long',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        timeZoneName: 'short'
-                    })),
-                    '',
-                    '───────────────────────────────────',
-                    'Chamber I — The Dual Scanner',
-                    '  (Bubble Sort)',
-                    '  Total Comparisons: ' + _tallyC,
-                    '  Total Swaps: ' + _tallyS,
-                    '',
-                    '───────────────────────────────────',
-                    'Chamber II — The Precision Extract',
-                    '  (Selection Sort)',
-                    '  Errors Committed: ' + _tallyE,
-                    '',
-                    '───────────────────────────────────',
-                    'REFLECTION I:',
-                    _insightA || '(no response)',
-                    '',
-                    'REFLECTION II:',
-                    _insightB || '(no response)',
-                    '',
-                    '═══════════════════════════════════',
-                    '  ARCHIVE MASTER — VERIFIED',
-                    '═══════════════════════════════════',
+                const _levelNames = [
+                    'Level 1 (Protocol A — 5 blocks)',
+                    'Level 2 (Protocol A — 10 blocks)',
+                    'Level 3 (Protocol A — 20 blocks)',
+                    'Level 4 (Protocol B — 5 blocks)',
+                    'Level 5 (Protocol B — 10 blocks)',
+                    'Level 6 (Protocol B — 20 blocks)'
                 ];
-                const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'Report_' + safeName + '.txt';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+
+                let _totalSwapsOrClicks = 0;
+                let _totalErrors = 0;
+
+                for (let _i = 0; _i < _lvlStats.length; _i++) {
+                    const _stat = _lvlStats[_i];
+                    const _label = _i < 3 ? 'Swaps' : 'Clicks';
+                    _report += '\n' + _levelNames[_i] + '\n';
+                    _report += '  ' + _label + ':  ' + _stat.swapsOrClicks + '\n';
+                    _report += '  Errors: ' + _stat.errors + '\n';
+                    _totalSwapsOrClicks += _stat.swapsOrClicks;
+                    _totalErrors += _stat.errors;
+                }
+
+                _report += '\n───────────────────────────────────────────\n';
+                _report += '  TOTALS\n';
+                _report += '  Total Swaps/Clicks: ' + _totalSwapsOrClicks + '\n';
+                _report += '  Total Errors:       ' + _totalErrors + '\n';
+                _report += '───────────────────────────────────────────\n\n';
+                _report += '───────────────────────────────────────────\n';
+                _report += '  REFLECTION A (after Level 3)\n';
+                _report += '───────────────────────────────────────────\n';
+                _report += _reflectionA + '\n\n';
+                _report += '───────────────────────────────────────────\n';
+                _report += '  REFLECTION B (after Level 6)\n';
+                _report += '───────────────────────────────────────────\n';
+                _report += _reflectionB + '\n\n';
+                _report += '───────────────────────────────────────────\n';
+                _report += '  INVESTIGATION RESULTS\n';
+                _report += '───────────────────────────────────────────\n';
+                _report += 'Protocol A Identification: ' + _protoANameVal + '\n';
+                _report += 'Protocol A Source URL:     ' + _protoAUrlVal + '\n';
+                _report += 'Protocol B Identification: ' + _protoBNameVal + '\n';
+                _report += 'Protocol B Source URL:     ' + _protoBUrlVal + '\n';
+                _report += '\n═══════════════════════════════════════════\n';
+                _report += '  END OF REPORT\n';
+                _report += '═══════════════════════════════════════════\n';
+
+                const _blob = new Blob([_report], { type: 'text/plain;charset=utf-8' });
+                const _url = URL.createObjectURL(_blob);
+                const _a = document.createElement('a');
+                _a.href = _url;
+                _a.download = 'Protocol_Report_' + _studentName.replace(/[^a-zA-Z0-9_\-]/g, '_') + '.txt';
+                document.body.appendChild(_a);
+                _a.click();
+                document.body.removeChild(_a);
+                URL.revokeObjectURL(_url);
+
+                _updateProgress(7);
+                domBtnGenerateReport.textContent = '✅ Report Downloaded';
+                domBtnGenerateReport.disabled = true;
+                setTimeout(() => {
+                    domBtnGenerateReport.textContent = '🔐 Generate Secure Report';
+                    domBtnGenerateReport.disabled = false;
+                }, 3000);
+            });
+
+            // ============================================================
+            // KEYBOARD SHORTCUTS
+            // ============================================================
+            document.addEventListener('keydown', function(_e) {
+                if (_lvlDone) return;
+                if (_pTcl === 'A' && !_lvlDone) {
+                    if (_e.key === 's' || _e.key === 'S') {
+                        _e.preventDefault();
+                        _actionSwap();
+                    } else if (_e.key === 'm' || _e.key === 'M' || _e.key === 'ArrowRight') {
+                        _e.preventDefault();
+                        _actionMove();
+                    }
+                }
+            });
+
+            // ============================================================
+            // INITIALISE GAME
+            // ============================================================
+            function _startGame() {
+                _lvl = 1;
+                _pTcl = 'A';
+                _lvlStats = [];
+                _reflectionA = '';
+                _reflectionB = '';
+                _lvlDone = false;
+                domHeaderBadge.textContent = 'PHASE 1 · PROTOCOL A';
+                domReflectionPanel.classList.add('hidden');
+                domInvestigationPanel.classList.add('hidden');
+                domGamePanel.style.opacity = '1';
+                _updateProgress(0);
+                _initLevel();
             }
 
-            $agentInput.addEventListener('input', function() {
-                $btnEnter.disabled = $agentInput.value.trim().length < 2;
-            });
-            $agentInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && $agentInput.value.trim().length >= 2) {
-                    $btnEnter.click();
-                }
-            });
-            $btnEnter.addEventListener('click', function() {
-                _agentRef = $agentInput.value.trim();
-                if (_agentRef.length < 2) return;
-                _initChamberOne();
-                _showOnly($secChamberOne);
-                $overlayBriefOne.classList.remove('hidden-el');
-            });
-            $btnBriefOneAck.addEventListener('click', function() {
-                $overlayBriefOne.classList.add('hidden-el');
-            });
-            $btnBriefTwoAck.addEventListener('click', function() {
-                $overlayBriefTwo.classList.add('hidden-el');
-            });
-            $btnSwap.addEventListener('click', _handleSwap);
-            $btnNext.addEventListener('click', _handleNext);
-            $txtReflOne.addEventListener('input', function() {
-                _updateCharCounter($txtReflOne, $cntReflOne, $btnReflOneCont);
-            });
-            $txtReflTwo.addEventListener('input', function() {
-                _updateCharCounter($txtReflTwo, $cntReflTwo, $btnReflTwoCont);
-            });
-            $btnReflOneCont.addEventListener('click', function() {
-                _insightA = $txtReflOne.value.trim();
-                $overlayReflOne.classList.add('hidden-el');
-                _initChamberTwo();
-                _showOnly($secChamberTwo);
-                $overlayBriefTwo.classList.remove('hidden-el');
-            });
-            $btnReflTwoCont.addEventListener('click', function() {
-                _insightB = $txtReflTwo.value.trim();
-                _timeMark = new Date().toLocaleString('en-GB', {
-                    day: '2-digit',
-                    month: 'long',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    timeZoneName: 'short'
-                });
-                $overlayReflTwo.classList.add('hidden-el');
-                _showOnly($secVaultFinal);
-            });
-            $btnDownload.addEventListener('click', function() {
-                _generateReport();
-            });
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    if (!$overlayReflOne.classList.contains('hidden-el') || !$overlayReflTwo.classList
-                        .contains('hidden-el')) {
-                        e.preventDefault();
-                        e.stopPropagation();
+            _startGame();
+
+            // ============================================================
+            // EXPOSED FOR DEBUG (harmless, within IIFE)
+            // ============================================================
+            if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+                window.__sortingProtocolDebug = {
+                    getState: function() {
+                        return {
+                            level: _lvl,
+                            protocol: _pTcl,
+                            dataSet: [..._dSet],
+                            bufferZone: [..._bZne],
+                            secureZone: [..._sZne],
+                            cPtr: _cPtr,
+                            passCount: _pCnt,
+                            passSwaps: _pSwp,
+                            totalSwapsOrClicks: _swpTot,
+                            totalErrors: _errTot,
+                            levelDone: _lvlDone,
+                            levelStats: [..._lvlStats],
+                            isSorted: _checkZ(_dSet)
+                        };
                     }
-                }
-            });
-            [ $overlayReflOne, $overlayReflTwo ].forEach(function(ov) {
-                ov.addEventListener('click', function(e) {
-                    if (e.target === ov) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }
-                });
-            });
-            _showOnly($secLanding);
-            $btnEnter.disabled = true;
-            console.log('%c🔒 The Archive is sealed. %cAll validation is computed dynamically at runtime.',
-                'color:#bfa06b;font-size:1.05em;', 'color:#9d978a;');
+                };
+            }
         })();
     </script>
 </body>
