@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Sorting Protocol — Digital Vault Simulation v2.4</title>
+    <title>The Sorting Protocol — Digital Vault Simulation v2.8</title>
     <style>
         :root {
             --bg-deep: #0a0c0f;
@@ -199,10 +199,9 @@
             flex-wrap: wrap;
             gap: 0.45rem;
             justify-content: center;
-            align-items: flex-end;
+            align-items: center;
             padding: 1rem 0.5rem;
             min-height: 90px;
-            align-items: center;
         }
         .array-block {
             font-family: var(--font-mono);
@@ -576,7 +575,7 @@
             <div class="header-top">
                 <div>
                     <div class="header-title">The Sorting Protocol</div>
-                    <div class="header-subtitle">Digital Vault Simulation v2.4 — Classified</div>
+                    <div class="header-subtitle">Digital Vault Simulation v2.8 — Classified</div>
                 </div>
                 <span class="header-badge" id="headerBadge">PHASE 1 · PROTOCOL A</span>
             </div>
@@ -623,8 +622,8 @@
         <div class="panel hidden fade-in" id="reflectionPanel">
             <div class="panel-header"><span class="dot"></span>MISSION REFLECTION</div>
             <p style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-bright);margin-bottom:0.7rem;" id="reflectionPrompt"></p>
-            <textarea class="textarea-field" id="reflectionTextarea" placeholder="Enter your reflection here (minimum 100 characters)..."></textarea>
-            <p class="char-counter" id="charCounter">0 / 100 characters</p>
+            <textarea class="textarea-field" id="reflectionTextarea" placeholder="Enter your reflection here (minimum 60 characters)..."></textarea>
+            <p class="char-counter" id="charCounter">0 / 60 characters</p>
             <div class="btn-row" style="margin-top:0.8rem;">
                 <button class="btn btn-primary" id="btnReflectionSubmit" disabled>Submit Reflection &amp; Continue</button>
             </div>
@@ -634,24 +633,32 @@
         <div class="panel hidden fade-in" id="investigationPanel">
             <div class="panel-header"><span class="dot"></span>DECRYPTION PORTAL — INVESTIGATION</div>
             <p style="font-family:var(--font-mono);font-size:0.73rem;color:var(--text-bright);margin-bottom:1rem;line-height:1.5;">
-                These protocols are real-world algorithms. Search the internet to identify them. Complete all fields to unlock the mission report.
+                These protocols are real-world algorithms. Search the internet to identify them based on the rules you just followed. Complete all fields to unlock the mission report.
             </p>
             <div class="investigation-grid">
                 <div class="investigation-field">
                     <label for="studentName">Student Name</label>
                     <input type="text" class="input-field" id="studentName" placeholder="Enter your full name...">
                 </div>
-                <div class="investigation-field">
+                <div class="investigation-field" style="grid-column: span 2;">
                     <label for="protoAName">Identification of Protocol A</label>
                     <input type="text" class="input-field" id="protoAName" placeholder="Algorithm name...">
+                </div>
+                <div class="investigation-field" style="grid-column: span 2;">
+                    <label for="protoADesc">Brief Description of Protocol A</label>
+                    <textarea class="textarea-field" id="protoADesc" placeholder="Explain how it works..."></textarea>
                 </div>
                 <div class="investigation-field">
                     <label for="protoAUrl">Source URL for Protocol A</label>
                     <input type="url" class="input-field" id="protoAUrl" placeholder="https://...">
                 </div>
-                <div class="investigation-field">
+                <div class="investigation-field" style="grid-column: span 2;">
                     <label for="protoBName">Identification of Protocol B</label>
                     <input type="text" class="input-field" id="protoBName" placeholder="Algorithm name...">
+                </div>
+                <div class="investigation-field" style="grid-column: span 2;">
+                    <label for="protoBDesc">Brief Description of Protocol B</label>
+                    <textarea class="textarea-field" id="protoBDesc" placeholder="Explain how it works..."></textarea>
                 </div>
                 <div class="investigation-field">
                     <label for="protoBUrl">Source URL for Protocol B</label>
@@ -677,7 +684,7 @@
             let _errTot = 0; // total errors this level
             let _bZne = []; // buffer zone array (Protocol B)
             let _sZne = []; // secure zone array (Protocol B)
-            let _lvl = 1; // current level (1-6)
+            let _lvl = 1; // current level (1-8)
             let _pTcl = 'A'; // current protocol ('A' or 'B')
             let _lvlDone = false; // whether current level is complete
 
@@ -746,8 +753,10 @@
             const domInvestigationPanel = $('#investigationPanel');
             const domStudentName = $('#studentName');
             const domProtoAName = $('#protoAName');
+            const domProtoADesc = $('#protoADesc');
             const domProtoAUrl = $('#protoAUrl');
             const domProtoBName = $('#protoBName');
+            const domProtoBDesc = $('#protoBDesc');
             const domProtoBUrl = $('#protoBUrl');
             const domBtnGenerateReport = $('#btnGenerateReport');
 
@@ -755,7 +764,7 @@
             // PROGRESS BAR UPDATE
             // ============================================================
             function _updateProgress(_completedSteps) {
-                const _total = 7; // 6 levels + investigation
+                const _total = 9; // 8 levels + investigation
                 const _pct = Math.round((_completedSteps / _total) * 100);
                 domProgressFill.style.width = _pct + '%';
                 domProgressPct.textContent = _pct + '%';
@@ -977,10 +986,10 @@
                 domControlButtons.innerHTML = '';
                 _updateProgress(_lvl);
 
-                if (_lvl === 3) {
+                if (_lvl === 4) {
                     // Trigger Reflection A
                     setTimeout(() => _showReflection('A'), 800);
-                } else if (_lvl === 6) {
+                } else if (_lvl === 8) {
                     // Trigger Reflection B
                     setTimeout(() => _showReflection('B'), 800);
                 } else {
@@ -997,16 +1006,16 @@
                 domReflectionPanel.classList.remove('hidden');
                 domReflectionPanel.classList.add('fade-in');
                 domReflectionTextarea.value = '';
-                domCharCounter.textContent = '0 / 100 characters';
+                domCharCounter.textContent = '0 / 60 characters';
                 domCharCounter.classList.add('insufficient');
                 domBtnReflectionSubmit.disabled = true;
 
                 if (_which === 'A') {
                     domReflectionPrompt.textContent =
-                        'Reflection A: What happened to the efficiency as the number of blocks doubled and then doubled again? Describe your strategy for the 20-block set.';
+                        'Reflection A: As the blocks increased up to 30, how did the time required and the difficulty change? Describe the impact on your effort.';
                 } else {
                     domReflectionPrompt.textContent =
-                        'Reflection B: Compare Protocol B with Protocol A. Which one felt more mentally taxing even if it required fewer clicks? Why?';
+                        'Reflection B: Comparing the 30-block level in Protocol B to Protocol A, which one took more time and which was more difficult? Explain why.';
                 }
                 domReflectionTextarea.focus();
             }
@@ -1022,10 +1031,10 @@
                 domReflectionPanel.classList.add('hidden');
                 domReflectionPanel.classList.remove('fade-in');
 
-                if (_lvl <= 3) {
+                if (_lvl <= 4) {
                     _pTcl = 'A';
                     domHeaderBadge.textContent = 'PHASE 1 · PROTOCOL A';
-                } else if (_lvl <= 6) {
+                } else if (_lvl <= 8) {
                     _pTcl = 'B';
                     domHeaderBadge.textContent = 'PHASE 2 · PROTOCOL B';
                 }
@@ -1050,7 +1059,7 @@
                 domControlButtons.innerHTML = '';
                 domStatsRow.innerHTML = '';
 
-                const _sizeMap = { 1: 5, 2: 10, 3: 20, 4: 5, 5: 10, 6: 20 };
+                const _sizeMap = { 1: 5, 2: 10, 3: 20, 4: 30, 5: 5, 6: 10, 7: 20, 8: 30 };
                 const _size = _sizeMap[_lvl] || 5;
                 _dSet = _genRandArr(_size);
 
@@ -1058,9 +1067,11 @@
                     1: 'LEVEL 1 — THE TRAINING (Protocol A)',
                     2: 'LEVEL 2 — THE TASK (Protocol A)',
                     3: 'LEVEL 3 — THE GRIND (Protocol A)',
-                    4: 'LEVEL 4 — THE EXTRACTION (Protocol B)',
-                    5: 'LEVEL 5 — THE SWEEP (Protocol B)',
-                    6: 'LEVEL 6 — THE ENDGAME (Protocol B)'
+                    4: 'LEVEL 4 — THE EXHAUSTION (Protocol A)',
+                    5: 'LEVEL 5 — THE EXTRACTION (Protocol B)',
+                    6: 'LEVEL 6 — THE SWEEP (Protocol B)',
+                    7: 'LEVEL 7 — THE HUNT (Protocol B)',
+                    8: 'LEVEL 8 — THE ENDGAME (Protocol B)'
                 };
                 domPanelTitle.textContent = _levelNames[_lvl] || ('LEVEL ' + _lvl);
 
@@ -1095,20 +1106,20 @@
             // ============================================================
             domBtnReflectionSubmit.addEventListener('click', function() {
                 const _text = domReflectionTextarea.value.trim();
-                if (_text.length < 100) return;
+                if (_text.length < 60) return;
 
-                if (_lvl === 3) {
+                if (_lvl === 4) {
                     _reflectionA = _text;
                     domReflectionPanel.classList.add('hidden');
                     domReflectionPanel.classList.remove('fade-in');
                     domGamePanel.style.opacity = '1';
                     _advanceLevel();
-                } else if (_lvl === 6) {
+                } else if (_lvl === 8) {
                     _reflectionB = _text;
                     domReflectionPanel.classList.add('hidden');
                     domReflectionPanel.classList.remove('fade-in');
                     domGamePanel.style.opacity = '1';
-                    _updateProgress(6);
+                    _updateProgress(8);
                     _showInvestigation();
                 }
             });
@@ -1122,38 +1133,42 @@
                 domInvestigationPanel.classList.add('fade-in');
                 domStudentName.value = '';
                 domProtoAName.value = '';
+                domProtoADesc.value = '';
                 domProtoAUrl.value = '';
                 domProtoBName.value = '';
+                domProtoBDesc.value = '';
                 domProtoBUrl.value = '';
                 domBtnGenerateReport.disabled = true;
-                _updateProgress(6);
+                _updateProgress(8);
             }
 
             // ============================================================
-            // VALIDATE INVESTIGATION FIELDS
+            // VALIDATE INVESTIGATION FIELDS (all mandatory)
             // ============================================================
             function _validateInvestigationFields() {
                 const _name = domStudentName.value.trim();
                 const _aName = domProtoAName.value.trim();
+                const _aDesc = domProtoADesc.value.trim();
                 const _aUrl = domProtoAUrl.value.trim();
                 const _bName = domProtoBName.value.trim();
+                const _bDesc = domProtoBDesc.value.trim();
                 const _bUrl = domProtoBUrl.value.trim();
-                const _allFilled = _name.length > 0 && _aName.length > 0 && _aUrl.length > 0 && _bName.length > 0 &&
-                    _bUrl.length > 0;
+                const _allFilled = _name.length > 0 && _aName.length > 0 && _aDesc.length > 0 && _aUrl.length > 0 &&
+                    _bName.length > 0 && _bDesc.length > 0 && _bUrl.length > 0;
                 domBtnGenerateReport.disabled = !_allFilled;
             }
 
-            [domStudentName, domProtoAName, domProtoAUrl, domProtoBName, domProtoBUrl].forEach(function(_el) {
+            [domStudentName, domProtoAName, domProtoADesc, domProtoAUrl, domProtoBName, domProtoBDesc, domProtoBUrl].forEach(function(_el) {
                 _el.addEventListener('input', _validateInvestigationFields);
             });
 
             // ============================================================
-            // REFLECTION TEXTAREA CHARACTER COUNT
+            // REFLECTION TEXTAREA CHARACTER COUNT (min 60)
             // ============================================================
             domReflectionTextarea.addEventListener('input', function() {
                 const _len = domReflectionTextarea.value.length;
-                domCharCounter.textContent = _len + ' / 100 characters';
-                if (_len >= 100) {
+                domCharCounter.textContent = _len + ' / 60 characters';
+                if (_len >= 60) {
                     domCharCounter.classList.remove('insufficient');
                     domBtnReflectionSubmit.disabled = false;
                 } else {
@@ -1168,12 +1183,14 @@
             domBtnGenerateReport.addEventListener('click', function() {
                 const _studentName = domStudentName.value.trim();
                 const _protoANameVal = domProtoAName.value.trim();
+                const _protoADescVal = domProtoADesc.value.trim();
                 const _protoAUrlVal = domProtoAUrl.value.trim();
                 const _protoBNameVal = domProtoBName.value.trim();
+                const _protoBDescVal = domProtoBDesc.value.trim();
                 const _protoBUrlVal = domProtoBUrl.value.trim();
 
-                if (!_studentName || !_protoANameVal || !_protoAUrlVal || !_protoBNameVal || !_protoBUrlVal)
-                    return;
+                if (!_studentName || !_protoANameVal || !_protoADescVal || !_protoAUrlVal ||
+                    !_protoBNameVal || !_protoBDescVal || !_protoBUrlVal) return;
 
                 const _now = new Date();
                 const _timestamp = _now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
@@ -1181,22 +1198,24 @@
                 let _report = '';
                 _report += '═══════════════════════════════════════════\n';
                 _report += '  THE SORTING PROTOCOL — MISSION REPORT\n';
-                _report += '  Digital Vault Simulation v2.4\n';
+                _report += '  Digital Vault Simulation v2.8\n';
                 _report += '═══════════════════════════════════════════\n\n';
                 _report += 'Student Name:    ' + _studentName + '\n';
                 _report += 'Timestamp:       ' + _timestamp + '\n';
                 _report += 'Status:          COMPLETE\n\n';
                 _report += '───────────────────────────────────────────\n';
-                _report += '  PERFORMANCE STATISTICS\n';
+                _report += '  PERFORMANCE STATISTICS (8 Levels)\n';
                 _report += '───────────────────────────────────────────\n';
 
                 const _levelNames = [
                     'Level 1 (Protocol A — 5 blocks)',
                     'Level 2 (Protocol A — 10 blocks)',
                     'Level 3 (Protocol A — 20 blocks)',
-                    'Level 4 (Protocol B — 5 blocks)',
-                    'Level 5 (Protocol B — 10 blocks)',
-                    'Level 6 (Protocol B — 20 blocks)'
+                    'Level 4 (Protocol A — 30 blocks)',
+                    'Level 5 (Protocol B — 5 blocks)',
+                    'Level 6 (Protocol B — 10 blocks)',
+                    'Level 7 (Protocol B — 20 blocks)',
+                    'Level 8 (Protocol B — 30 blocks)'
                 ];
 
                 let _totalSwapsOrClicks = 0;
@@ -1204,7 +1223,7 @@
 
                 for (let _i = 0; _i < _lvlStats.length; _i++) {
                     const _stat = _lvlStats[_i];
-                    const _label = _i < 3 ? 'Swaps' : 'Clicks';
+                    const _label = _i < 4 ? 'Swaps' : 'Clicks';
                     _report += '\n' + _levelNames[_i] + '\n';
                     _report += '  ' + _label + ':  ' + _stat.swapsOrClicks + '\n';
                     _report += '  Errors: ' + _stat.errors + '\n';
@@ -1218,19 +1237,21 @@
                 _report += '  Total Errors:       ' + _totalErrors + '\n';
                 _report += '───────────────────────────────────────────\n\n';
                 _report += '───────────────────────────────────────────\n';
-                _report += '  REFLECTION A (after Level 3)\n';
+                _report += '  REFLECTION A (after Level 4)\n';
                 _report += '───────────────────────────────────────────\n';
                 _report += _reflectionA + '\n\n';
                 _report += '───────────────────────────────────────────\n';
-                _report += '  REFLECTION B (after Level 6)\n';
+                _report += '  REFLECTION B (after Level 8)\n';
                 _report += '───────────────────────────────────────────\n';
                 _report += _reflectionB + '\n\n';
                 _report += '───────────────────────────────────────────\n';
                 _report += '  INVESTIGATION RESULTS\n';
                 _report += '───────────────────────────────────────────\n';
                 _report += 'Protocol A Identification: ' + _protoANameVal + '\n';
-                _report += 'Protocol A Source URL:     ' + _protoAUrlVal + '\n';
+                _report += 'Protocol A Description:    ' + _protoADescVal + '\n';
+                _report += 'Protocol A Source URL:     ' + _protoAUrlVal + '\n\n';
                 _report += 'Protocol B Identification: ' + _protoBNameVal + '\n';
+                _report += 'Protocol B Description:    ' + _protoBDescVal + '\n';
                 _report += 'Protocol B Source URL:     ' + _protoBUrlVal + '\n';
                 _report += '\n═══════════════════════════════════════════\n';
                 _report += '  END OF REPORT\n';
@@ -1246,7 +1267,7 @@
                 document.body.removeChild(_a);
                 URL.revokeObjectURL(_url);
 
-                _updateProgress(7);
+                _updateProgress(9);
                 domBtnGenerateReport.textContent = '✅ Report Downloaded';
                 domBtnGenerateReport.disabled = true;
                 setTimeout(() => {
